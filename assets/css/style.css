@@ -687,3 +687,44 @@ form .button input:hover {
   margin: 3px 4px;
   font-size: 14px;
 }
+
+.dropdown-menu {
+  position: absolute;
+  top: 70px;
+  right: 8px;
+  background-color: #999;
+  color: white;
+  border-radius: 8px;
+  padding: 10px 20px;
+  text-decoration: none;
+  list-style: none;
+  display: none;
+
+  text-align: center;
+  width: 200px;
+}
+
+.dropdown-menu.active {
+  display: block;
+}
+
+.dropdown-menu span {
+  text-transform: capitalize;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.dropdown-menu p {
+  font-size: 13px;
+}
+
+.dropdown-menu::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  right: 13px;
+  height: 20px;
+  width: 20px;
+  background: #999;
+  transform: rotate(45deg);
+}

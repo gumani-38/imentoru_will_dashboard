@@ -19,3 +19,9 @@ toggle.onclick = function () {
   navigation.classList.toggle("active");
   main.classList.toggle("active");
 };
+
+const dropdownMenuBtn = document.querySelector(".user");
+const dropdownMenuContainer = document.querySelector(".dropdown-menu");
+dropdownMenuBtn.addEventListener("click", function () {
+  dropdownMenuContainer.classList.toggle("active");
+});
