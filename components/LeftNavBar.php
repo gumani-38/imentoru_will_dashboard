@@ -41,13 +41,20 @@
                 <span class="title">Cordinators</span>
             </a>
         </li>
-
+        <li>
+            <a href="sponsor.php">
+                <span class="icon">
+                    <i class="fa-solid fa-handshake"></i>
+                </span>
+                <span class="title">Sponsors</span>
+            </a>
+        </li>
         <li>
             <a href="partner.php">
                 <span class="icon">
                     <i class="fa-solid fa-handshake"></i>
                 </span>
-                <span class="title">Partners/Sponsors</span>
+                <span class="title">Partners</span>
             </a>
         </li>
 

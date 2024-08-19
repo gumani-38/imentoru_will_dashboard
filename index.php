@@ -349,7 +349,7 @@ if (!isset($_SESSION['id'])) {
                             $totalPages = ceil($totalTasks / $tasksPerPage);
 
                             // Fetch tasks for the current page
-                            $sql = $conn->prepare("SELECT id, task, date_set, time_set, date_due, time_due, task_status FROM task WHERE username = ? LIMIT ? OFFSET ?");
+                            $sql = $conn->prepare("SELECT id, task, date_set, time_set, date_due, time_due, task_status,active FROM task WHERE username = ? LIMIT ? OFFSET ?");
                             $sql->bind_param("sii", $user, $tasksPerPage, $offset);
                             $sql->execute();
                             $result = $sql->get_result();
@@ -378,7 +378,11 @@ if (!isset($_SESSION['id'])) {
                             echo "<span class='badge red'>Due: " . htmlspecialchars($row['date_due']) . "</span>";
                             echo "</div>";
                             echo "<div class='flex-row'>";
-                            echo "<button class='check-btn'><i class='fa-solid fa-check'></i></button>";
+                            if ($row['active'] == 0) {
+                                echo "<button class='check-btn' id='update-task-btn' data-task-id='{$row['id']}'> <i class='fa-solid fa-check'></i></button>";
+                            } else {
+                                echo "<button class='check-btn' id='update-task-btn' data-task-id='{$row['id']}'> </button>";
+                            }
                             echo "<p>" . htmlspecialchars($row['task']) . "</p>";
                             echo "</div>";
                             echo "</div>";
@@ -634,6 +638,36 @@ if (!isset($_SESSION['id'])) {
         const dropdownMenuContainer = document.querySelector('.dropdown-menu')
         dropdownMenuBtn.addEventListener('click', function() {
             dropdownMenuContainer.classList.toggle('active');
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('#update-task-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const taskId = this.dataset.taskId;
+                    const isActive = this.classList.contains('active');
+
+                    fetch('./php/updateTask.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                id: taskId,
+                                active: isActive ? 0 : 1 // Toggle status
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.classList.toggle('active', !isActive);
+                                // Optionally, update the button text or appearance
+                            } else {
+                                console.error('Failed to update status:', data.message);
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                });
+            });
         });
     </script>
 </body>

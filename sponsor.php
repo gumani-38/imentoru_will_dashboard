@@ -1,14 +1,14 @@
 <?php
 session_start();
 
-// Check if the user is logged in, if not then redirect them to the login page
 if (!isset($_SESSION['id'])) {
-  header("Location: login.php");
-  exit();
+    header("Location: login.php");
+    exit();
 }
+
 include("./php/connection.php");
 
-$sql = "SELECT * FROM partners"; // Query to fetch all data from partners table
+$sql = "SELECT * FROM sponsors";
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
@@ -18,7 +18,7 @@ $result = $conn->query($sql);
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Responsive Admin Dashboard | Korsat X Parmaga</title>
+    <title>Sponsors Dashboard</title>
     <!-- ======= Styles ====== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
         integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
@@ -35,7 +35,7 @@ $result = $conn->query($sql);
         <div class="main">
             <?php include("./components/TopBar.php"); ?>
             <div class="btn-form-wrapper">
-                <a href="#" class="btn-form">Add Partner</a>
+                <a href="#" class="btn-form">Add Sponsor</a>
             </div>
             <div class="search-wrapper">
                 <input type="text" placeholder="search by name or email...">
@@ -47,7 +47,7 @@ $result = $conn->query($sql);
             <div class="details">
                 <div class="recentOrders">
                     <div class="cardHeader">
-                        <h2>Partners</h2>
+                        <h2>Sponsors</h2>
                         <div class="pagination">
                             <a href="#" class="pagination-btns">
                                 <ion-icon name="chevron-back-outline"></ion-icon>
@@ -64,10 +64,10 @@ $result = $conn->query($sql);
                             <tr>
                                 <td>Name</td>
                                 <td>Email</td>
+                                <td>Phone</td>
                                 <td>Address</td>
-                                <td>Position</td>
-                                <td>Occupation</td>
                                 <td>Province</td>
+                                <td>Country</td>
                                 <td>Created At</td>
                                 <td>Status</td>
                                 <td>Action</td>
@@ -76,24 +76,24 @@ $result = $conn->query($sql);
 
                         <tbody>
                             <?php
-              if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                  echo "<tr>";
-                  echo "<td>" . $row["first_name"] . " " . $row["last_name"] . "</td>";
-                  echo "<td>" . $row["email"] . "</td>";
-                  echo "<td>" . $row["address"] . "</td>";
-                  echo "<td>" . $row["position"] . "</td>";
-                  echo "<td>" . $row["occupation"] . "</td>";
-                  echo "<td>" . $row["province"] . "</td>";
-                  echo "<td>" . $row["date_reg"] . "</td>";
-                  echo "<td>" . ($row["active"] ? "Active" : "Inactive") . "</td>";
-                  echo "<td><button class='btn-edit'><i class='fa-solid fa-pen-to-square'></i></button> <button class='btn-remove'><i class='fa-solid fa-trash-can'></i></button></td>";
-                  echo "</tr>";
-                }
-              } else {
-                echo "<tr><td colspan='9'>No records found</td></tr>";
-              }
-              ?>
+                            if ($result->num_rows > 0) {
+                                while ($row = $result->fetch_assoc()) {
+                                    echo "<tr>";
+                                    echo "<td>" . $row["first_name"] . " " . $row["last_name"] . "</td>";
+                                    echo "<td>" . $row["email"] . "</td>";
+                                    echo "<td>" . $row["phone"] . "</td>";
+                                    echo "<td>" . $row["address"] . "</td>";
+                                    echo "<td>" . $row["province"] . "</td>";
+                                    echo "<td>" . $row["country"] . "</td>";
+                                    echo "<td>" . $row["date_reg"] . "</td>";
+                                    echo "<td>" . ($row["active"] ? "Active" : "Inactive") . "</td>";
+                                    echo "<td><button class='btn-edit'><i class='fa-solid fa-pen-to-square'></i></button> <button class='btn-remove'><i class='fa-solid fa-trash-can'></i></button></td>";
+                                    echo "</tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='10'>No records found</td></tr>";
+                            }
+                            ?>
                         </tbody>
                     </table>
                 </div>
