@@ -6,9 +6,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
- 
+
     // Prepare and bind
-    $stmt = $conn->prepare("SELECT id, password,first_name,last_name,username FROM user_account WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, password,first_name,last_name,email FROM users WHERE email = ?");
     $stmt->bind_param("s", $username);
 
     // Execute the statement
@@ -17,14 +17,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($stmt->num_rows > 0) {
         // Bind result variables
-        $stmt->bind_result($id, $hashed_password,$first_name,$last_name,$user_name);
+        $stmt->bind_result($id, $hashed_password, $first_name, $last_name, $user_name);
         $stmt->fetch();
 
         if ($password == $hashed_password) {
             $_SESSION['username'] = $user_name;
             $_SESSION['id'] = $id;
-            $_SESSION["Fullname"] = $first_name.' '.$last_name;
-            $_SESSION["isLockedScreen"] = true;
+            $_SESSION["Fullname"] = $first_name . ' ' . $last_name;
+            $_SESSION["isLockedScreen"] = false;
             header("Location: ../index.php");
             exit();
         } else {
@@ -40,4 +40,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->close();
     $conn->close();
 }
-?>

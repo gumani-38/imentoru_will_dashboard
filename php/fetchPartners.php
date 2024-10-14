@@ -1,4 +1,5 @@
 <?php
+// Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -14,6 +15,7 @@ $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : ''; // Prevent SQL injection
 $offset = ($page - 1) * $limit;
 
+// Check database connection
 if (!$conn) {
     echo json_encode(['error' => 'Connection failed: ' . mysqli_connect_error()]);
     exit;
@@ -27,12 +29,13 @@ if (!$totalResult) {
     echo json_encode(['error' => 'SQL Error: ' . mysqli_error($conn)]);
     exit;
 }
+
 $totalRow = mysqli_fetch_assoc($totalResult);
 $totalRecords = $totalRow['total'];
 $totalPages = ceil($totalRecords / $limit);
 
 // Query to fetch the relevant records for the current page
-$query = "SELECT * FROM contact WHERE name LIKE '%$search%' OR email LIKE '%$search%' LIMIT $offset, $limit";
+$query = "SELECT * FROM partners WHERE name LIKE '%$search%' OR email LIKE '%$search%' LIMIT $offset, $limit";
 $result = mysqli_query($conn, $query);
 
 if (!$result) {
@@ -40,29 +43,27 @@ if (!$result) {
     exit;
 }
 
-if ($result->num_rows > 0) {
-    $html = ''; // Initialize HTML variable
-    while ($row = $result->fetch_assoc()) {
-        $html .= "<tr>";
-        $html .= "<td>" . htmlspecialchars($row['name']) . "</td>";
-        $html .= "<td>" . htmlspecialchars($row['email']) . "</td>";
-        $html .= "<td>" . htmlspecialchars($row['phone']) . "</td>";
-        $html .= "<td>" . htmlspecialchars($row['province']) . "</td>";
-        $html .= "<td>" . htmlspecialchars($row['date_reg']) . "</td>";
-        $html .= "<td>" . htmlspecialchars($row['subject']) . "</td>";
-        $html .= "<td>" . htmlspecialchars($row['message']) . "</td>";
-        $html .= "<td><button class='btn-remove' data-email='" . htmlspecialchars($row['email']) . "'>
-                       <i class='fa-solid fa-trash-can'></i></button></td>";
-        $html .= "</tr>";
-    }
-} else {
-    $html .= "<tr><td colspan='8'>No data found</td></tr>";
+// Build HTML table rows
+$html = '';
+while ($row = mysqli_fetch_assoc($result)) {
+    $html .= "<tr>";
+    $html .= "<td>{$row['name']}</td>";
+    $html .= "<td>{$row['website']}</td>";
+    $html .= "<td>{$row['province']}</td>";
+    $html .= "<td>{$row['partnership_type']}</td>";
+    $html .= "<td>{$row['phone']}</td>";
+    $html .= "<td>{$row['email']}</td>";
+    $html .= "<td>{$row['summary']}</td>";
+    $html .= "<td><a href='edit.php?id={$row['id']}'>Edit</a></td>";
+    $html .= "</tr>";
 }
 
-
+// Send the response as JSON
 $response = [
     'html' => $html,
     'page' => $page,
     'totalPages' => $totalPages
 ];
 echo json_encode($response);
+
+// No need for additional output after this point

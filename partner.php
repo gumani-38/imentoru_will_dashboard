@@ -1,15 +1,11 @@
 <?php
 session_start();
 
-// Check if the user is logged in, if not then redirect them to the login page
+// Check if the user is logged in, if not then redirect them to login page
 if (!isset($_SESSION['id'])) {
-  header("Location: login.php");
-  exit();
+    header("Location: login.php");
+    exit();
 }
-include("./php/connection.php");
-
-$sql = "SELECT * FROM partners"; // Query to fetch all data from partners table
-$result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,6 +19,9 @@ $result = $conn->query($sql);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
         integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
     <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 
@@ -34,11 +33,9 @@ $result = $conn->query($sql);
         <!-- ========================= Main ==================== -->
         <div class="main">
             <?php include("./components/TopBar.php"); ?>
-            <div class="btn-form-wrapper">
-                <a href="#" class="btn-form">Add Partner</a>
-            </div>
+
             <div class="search-wrapper">
-                <input type="text" placeholder="search by name or email...">
+                <input type="text" id="search-input" placeholder="search by name or email...">
             </div>
 
             <!-- ======================= Cards ================== -->
@@ -47,13 +44,13 @@ $result = $conn->query($sql);
             <div class="details">
                 <div class="recentOrders">
                     <div class="cardHeader">
-                        <h2>Partners</h2>
+                        <h2>Partners/Sponsors</h2>
                         <div class="pagination">
-                            <a href="#" class="pagination-btns">
+                            <a href="#" class="pagination-btns" id="prev-page">
                                 <ion-icon name="chevron-back-outline"></ion-icon>
                             </a>
-                            <span>1/5</span>
-                            <a href="#" class="pagination-btns">
+                            <span id="current-page">1</span>/<span id="total-pages">5</span>
+                            <a href="#" class="pagination-btns" id="next-page">
                                 <ion-icon name="chevron-forward-outline"></ion-icon>
                             </a>
                         </div>
@@ -63,43 +60,91 @@ $result = $conn->query($sql);
                         <thead>
                             <tr>
                                 <td>Name</td>
-                                <td>Email</td>
-                                <td>Address</td>
-                                <td>Position</td>
-                                <td>Occupation</td>
+                                <td>Website</td>
                                 <td>Province</td>
-                                <td>Created At</td>
-                                <td>Status</td>
+                                <td>Partnership Type</td>
+                                <td>Phone No</td>
+                                <td>Email</td>
+                                <td>Summary</td>
                                 <td>Action</td>
                             </tr>
                         </thead>
 
-                        <tbody>
-                            <?php
-              if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                  echo "<tr>";
-                  echo "<td>" . $row["first_name"] . " " . $row["last_name"] . "</td>";
-                  echo "<td>" . $row["email"] . "</td>";
-                  echo "<td>" . $row["address"] . "</td>";
-                  echo "<td>" . $row["position"] . "</td>";
-                  echo "<td>" . $row["occupation"] . "</td>";
-                  echo "<td>" . $row["province"] . "</td>";
-                  echo "<td>" . $row["date_reg"] . "</td>";
-                  echo "<td>" . ($row["active"] ? "Active" : "Inactive") . "</td>";
-                  echo "<td><button class='btn-edit'><i class='fa-solid fa-pen-to-square'></i></button> <button class='btn-remove'><i class='fa-solid fa-trash-can'></i></button></td>";
-                  echo "</tr>";
-                }
-              } else {
-                echo "<tr><td colspan='9'>No records found</td></tr>";
-              }
-              ?>
-                        </tbody>
+                        <tbody id="partners-data"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let currentPage = 1;
+            const limit = 10;
+
+            // Function to fetch data from the server
+            function fetchData(page = 1, searchTerm = '') {
+                fetch(
+                        `./php/fetchPartners.php?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`
+                    )
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.error) {
+                            console.error("Server Error:", data.error);
+                            document.getElementById("partners-data").innerHTML =
+                                `<tr><td colspan="8">${data.error}</td></tr>`;
+                            return;
+                        }
+
+                        // Update the HTML with the received data
+                        document.getElementById("partners-data").innerHTML = data.html;
+                        document.getElementById("current-page").innerText = data.page;
+                        document.getElementById("total-pages").innerText = data.totalPages;
+
+                        // Disable/enable pagination buttons
+                        document.getElementById('prev-page').style.visibility = (data.page > 1) ? 'visible' :
+                            'hidden';
+                        document.getElementById('next-page').style.visibility = (data.page < data.totalPages) ?
+                            'visible' : 'hidden';
+                    })
+                    .catch(error => console.error("Error fetching data:", error));
+            }
+
+            // Initial load
+            fetchData();
+
+            // Handle search input
+            document.getElementById('search-input').addEventListener('keyup', function(event) {
+                const searchTerm = this.value;
+                currentPage = 1; // reset to first page
+                fetchData(currentPage, searchTerm); // fetch data as you type
+            });
+
+            // Pagination handlers
+            document.getElementById('prev-page').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    const searchTerm = document.getElementById('search-input').value;
+                    fetchData(currentPage, searchTerm);
+                }
+            });
+
+            document.getElementById('next-page').addEventListener('click', function() {
+                const totalPages = parseInt(document.getElementById('total-pages').innerText);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    const searchTerm = document.getElementById('search-input').value;
+                    fetchData(currentPage, searchTerm);
+                }
+            });
+        });
+    </script>
+
 
     <!-- =========== Scripts =========  -->
     <script src="assets/js/main.js"></script>
@@ -110,7 +155,3 @@ $result = $conn->query($sql);
 </body>
 
 </html>
-
-<?php
-$conn->close();
-?>
