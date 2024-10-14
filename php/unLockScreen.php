@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
 
     // Prepare and bind
-    $stmt = $conn->prepare("SELECT password FROM user_account WHERE id = ?");
+    $stmt = $conn->prepare("SELECT password FROM users WHERE id = ?");
     $stmt->bind_param("i", $user_id);
 
     // Execute the statement
@@ -37,4 +37,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->close();
     $conn->close();
 }
-?>
