@@ -16,6 +16,7 @@ if (!isset($_SESSION['id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Responsive Admin Dashboard | Korsat X Parmaga</title>
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+
     <link rel="stylesheet" href="./assets/css/style.css" />
     <!-- ======= Styles ====== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
@@ -379,19 +380,58 @@ if (!isset($_SESSION['id'])) {
                         document.getElementById("contact-data").innerHTML = data.html;
                         document.getElementById("current-page").innerText = data.page;
                         document.getElementById("total-pages").innerText = data.totalPages;
+                        const btns = document.querySelectorAll(".btn-remove");
+
 
                         // Disable/enable pagination buttons
                         document.getElementById('prev-page').style.visibility = (data.page > 1) ? 'visible' :
                             'hidden';
                         document.getElementById('next-page').style.visibility = (data.page < data.totalPages) ?
                             'visible' : 'hidden';
+                        btns.forEach(btn => {
+                            btn.addEventListener('click', function(event) {
+                                event
+                                    .preventDefault(); // Prevent default action if the button is a link or form submit
+
+                                const contactId = this.dataset
+                                    .id; // Assuming you're storing the ID in a data attribute
+
+                                // Check if contactId is valid
+                                if (!contactId) {
+                                    console.error('Invalid contact ID.');
+                                    return;
+                                }
+
+                                fetch(`./php/deleteContact.php`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/x-www-form-urlencoded' // Set content type
+                                        },
+                                        body: new URLSearchParams({
+                                            id: contactId
+                                        }) // Send ID in request body
+                                    })
+                                    .then(response => response.json())
+                                    .then(result => {
+                                        if (result.success) {
+                                            // Optionally, you can remove the row from the table
+                                            this.closest('tr').remove();
+                                        } else {
+                                            console.error('Failed to remove contact:',
+                                                result.error);
+                                        }
+                                    })
+                                    .catch(error => console.error('Error:', error));
+                            });
+                        });
                     })
                     .catch(error => console.error("Error fetching data:", error));
             }
 
             // Initial load
             fetchData();
-
+            const btns = document.querySelectorAll(".btn-remove");
+            console.log(btns.length);
             // Handle search input
             document.getElementById('search-input').addEventListener('keyup', function(event) {
                 const searchTerm = this.value;
@@ -417,10 +457,7 @@ if (!isset($_SESSION['id'])) {
                 }
             });
         });
-    </script>
 
-
-    <script>
         document.querySelector('.lockScreen-btn').addEventListener('click', function() {
             // Send an AJAX request to the server to lock the screen
             fetch('lock_screen.php', {

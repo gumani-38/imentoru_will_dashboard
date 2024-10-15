@@ -51,8 +51,8 @@ if ($result->num_rows > 0) {
         $html .= "<td>" . htmlspecialchars($row['date_reg']) . "</td>";
         $html .= "<td>" . htmlspecialchars($row['subject']) . "</td>";
         $html .= "<td>" . htmlspecialchars($row['message']) . "</td>";
-        $html .= "<td><button class='btn-remove' data-email='" . htmlspecialchars($row['email']) . "'>
-                       <i class='fa-solid fa-trash-can'></i></button></td>";
+        $html .= "<td><button class='btn-remove' data-id='" . htmlspecialchars($row['id']) . "'>
+            <i class='fa-solid fa-trash-can'></i></button></td>";
         $html .= "</tr>";
     }
 } else {

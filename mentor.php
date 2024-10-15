@@ -77,7 +77,7 @@
 
                         // Update table rows with the fetched HTML content
                         document.getElementById("mentor-data").innerHTML = data.html;
-
+                        const btns = document.querySelectorAll(".btn-remove");
                         // Update the pagination display
                         document.getElementById("current-page").innerText = data.page;
                         document.getElementById("total-pages").innerText = data.totalPages;
@@ -85,6 +85,42 @@
                         // Enable/Disable pagination buttons
                         document.getElementById("prev-page").disabled = data.page <= 1;
                         document.getElementById("next-page").disabled = data.page >= data.totalPages;
+                        btns.forEach(btn => {
+                            btn.addEventListener('click', function(event) {
+                                event
+                                    .preventDefault(); // Prevent default action if the button is a link or form submit
+
+                                const contactId = this.dataset
+                                    .id; // Assuming you're storing the ID in a data attribute
+
+                                // Check if contactId is valid
+                                if (!contactId) {
+                                    console.error('Invalid contact ID.');
+                                    return;
+                                }
+
+                                fetch(`./php/deleteMentor.php`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/x-www-form-urlencoded' // Set content type
+                                        },
+                                        body: new URLSearchParams({
+                                            id: contactId
+                                        }) // Send ID in request body
+                                    })
+                                    .then(response => response.json())
+                                    .then(result => {
+                                        if (result.success) {
+                                            // Optionally, you can remove the row from the table
+                                            this.closest('tr').remove();
+                                        } else {
+                                            console.error('Failed to remove contact:',
+                                                result.error);
+                                        }
+                                    })
+                                    .catch(error => console.error('Error:', error));
+                            });
+                        });
                     })
                     .catch(error => console.error("Error fetching data:", error));
             }

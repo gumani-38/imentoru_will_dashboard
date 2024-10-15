@@ -18,7 +18,7 @@ $totalRecords = $totalRow['total'];
 $totalPages = ceil($totalRecords / $limit);
 
 // Query to fetch mentees data with pagination and search filter
-$sql = "SELECT first_name, last_name, gender, phone, province, email, home_language, occupation 
+$sql = "SELECT id,first_name, last_name, gender, phone, province, email, home_language, occupation 
         FROM mentees 
         WHERE first_name LIKE '%$search%' 
         OR last_name LIKE '%$search%' 
@@ -47,8 +47,9 @@ if ($result->num_rows > 0) {
                             <td>" . htmlspecialchars($row["occupation"]) . "</td>
                             <td>" . htmlspecialchars($row["home_language"]) . "</td>
                             <td>
-                                <button class='btn-edit'><i class='fa-solid fa-pen-to-square'></i></button>
-                                <button class='btn-remove'><i class='fa-solid fa-trash-can'></i></button>
+                                <button class='btn-remove' data-id='" . htmlspecialchars($row['id']) . "'>
+                                    <i class='fa-solid fa-trash-can'></i>
+                                </button>
                             </td>
                           </tr>";
     }
