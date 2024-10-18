@@ -47,6 +47,7 @@ if ($result->num_rows > 0) {
                             <td>" . htmlspecialchars($row["occupation"]) . "</td>
                             <td>" . htmlspecialchars($row["home_language"]) . "</td>
                             <td>
+                             <a href='updateMentee.php?id=" . htmlspecialchars($row['id']) . "' class='btn-edit'><i class='fa-solid fa-pen-to-square'></i></a>
                                 <button class='btn-remove' data-id='" . htmlspecialchars($row['id']) . "'>
                                     <i class='fa-solid fa-trash-can'></i>
                                 </button>

@@ -14,7 +14,7 @@ if (!isset($_SESSION['id'])) {
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Responsive Admin Dashboard | Korsat X Parmaga</title>
+    <title>Imentoru Dashboard</title>
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 
     <link rel="stylesheet" href="./assets/css/style.css" />

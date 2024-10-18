@@ -14,7 +14,7 @@ if (!isset($_SESSION['id'])) {
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Responsive Admin Dashboard | Korsat X Parmaga</title>
+    <title>Imentoru Dashboard</title>
     <!-- ======= Styles ====== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
         integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
@@ -78,71 +78,108 @@ if (!isset($_SESSION['id'])) {
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            let currentPage = 1;
-            const limit = 10;
+    document.addEventListener("DOMContentLoaded", function() {
+        let currentPage = 1;
+        const limit = 10;
 
-            // Function to fetch data from the server
-            function fetchData(page = 1, searchTerm = '') {
-                fetch(
-                        `./php/fetchPartners.php?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`
-                    )
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.error) {
-                            console.error("Server Error:", data.error);
-                            document.getElementById("partners-data").innerHTML =
-                                `<tr><td colspan="8">${data.error}</td></tr>`;
-                            return;
-                        }
+        // Function to fetch data from the server
+        function fetchData(page = 1, searchTerm = '') {
+            fetch(
+                    `./php/fetchPartners.php?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`
+                )
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        console.error("Server Error:", data.error);
+                        document.getElementById("partners-data").innerHTML =
+                            `<tr><td colspan="8">${data.error}</td></tr>`;
+                        return;
+                    }
 
-                        // Update the HTML with the received data
-                        document.getElementById("partners-data").innerHTML = data.html;
-                        document.getElementById("current-page").innerText = data.page;
-                        document.getElementById("total-pages").innerText = data.totalPages;
+                    // Update the HTML with the received data
+                    document.getElementById("partners-data").innerHTML = data.html;
+                    const btns = document.querySelectorAll(".btn-remove");
+                    document.getElementById("current-page").innerText = data.page;
+                    document.getElementById("total-pages").innerText = data.totalPages;
 
-                        // Disable/enable pagination buttons
-                        document.getElementById('prev-page').style.visibility = (data.page > 1) ? 'visible' :
-                            'hidden';
-                        document.getElementById('next-page').style.visibility = (data.page < data.totalPages) ?
-                            'visible' : 'hidden';
-                    })
-                    .catch(error => console.error("Error fetching data:", error));
-            }
+                    // Disable/enable pagination buttons
+                    document.getElementById('prev-page').style.visibility = (data.page > 1) ? 'visible' :
+                        'hidden';
+                    document.getElementById('next-page').style.visibility = (data.page < data.totalPages) ?
+                        'visible' : 'hidden';
+                    btns.forEach(btn => {
+                        btn.addEventListener('click', function(event) {
+                            event
+                                .preventDefault(); // Prevent default action if the button is a link or form submit
 
-            // Initial load
-            fetchData();
+                            const contactId = this.dataset
+                                .id; // Assuming you're storing the ID in a data attribute
 
-            // Handle search input
-            document.getElementById('search-input').addEventListener('keyup', function(event) {
-                const searchTerm = this.value;
-                currentPage = 1; // reset to first page
-                fetchData(currentPage, searchTerm); // fetch data as you type
-            });
+                            // Check if contactId is valid
+                            if (!contactId) {
+                                console.error('Invalid contact ID.');
+                                return;
+                            }
 
-            // Pagination handlers
-            document.getElementById('prev-page').addEventListener('click', function() {
-                if (currentPage > 1) {
-                    currentPage--;
-                    const searchTerm = document.getElementById('search-input').value;
-                    fetchData(currentPage, searchTerm);
-                }
-            });
+                            fetch(`./php/deletePartner.php`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded' // Set content type
+                                    },
+                                    body: new URLSearchParams({
+                                        id: contactId
+                                    }) // Send ID in request body
+                                })
+                                .then(response => response.json())
+                                .then(result => {
+                                    if (result.success) {
+                                        // Optionally, you can remove the row from the table
+                                        this.closest('tr').remove();
+                                    } else {
+                                        console.error('Failed to remove contact:',
+                                            result.error);
+                                    }
+                                })
+                                .catch(error => console.error('Error:', error));
+                        });
+                    });
+                })
+                .catch(error => console.error("Error fetching data:", error));
+        }
 
-            document.getElementById('next-page').addEventListener('click', function() {
-                const totalPages = parseInt(document.getElementById('total-pages').innerText);
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    const searchTerm = document.getElementById('search-input').value;
-                    fetchData(currentPage, searchTerm);
-                }
-            });
+        // Initial load
+        fetchData();
+
+        // Handle search input
+        document.getElementById('search-input').addEventListener('keyup', function(event) {
+            const searchTerm = this.value;
+            currentPage = 1; // reset to first page
+            fetchData(currentPage, searchTerm); // fetch data as you type
         });
+
+        // Pagination handlers
+        document.getElementById('prev-page').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                const searchTerm = document.getElementById('search-input').value;
+                fetchData(currentPage, searchTerm);
+            }
+        });
+
+        document.getElementById('next-page').addEventListener('click', function() {
+            const totalPages = parseInt(document.getElementById('total-pages').innerText);
+            if (currentPage < totalPages) {
+                currentPage++;
+                const searchTerm = document.getElementById('search-input').value;
+                fetchData(currentPage, searchTerm);
+            }
+        });
+    });
     </script>
 
 

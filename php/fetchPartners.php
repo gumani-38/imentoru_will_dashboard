@@ -54,9 +54,11 @@ while ($row = mysqli_fetch_assoc($result)) {
     $html .= "<td>{$row['phone']}</td>";
     $html .= "<td>{$row['email']}</td>";
     $html .= "<td>{$row['summary']}</td>";
-    $html .= "<td><button class='btn-edit' data-id='" . htmlspecialchars($row['id']) . "'>
-                                    <i class='fa-solid fa-pen-to-square'></i>
-        </button></td>";
+    $html .= "<td>
+    <a href='updatePartner.php?id=" . htmlspecialchars($row['id']) . "' class='btn-edit'><i class='fa-solid fa-pen-to-square'></i></a>
+    <button class='btn-remove' data-id='" . htmlspecialchars($row['id']) . "'><i class='fa-solid fa-trash-can'></i></button>
+    </td>";
+
     $html .= "</tr>";
 }
 
