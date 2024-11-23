@@ -1,0 +1,18 @@
+{
+  "name": "moila/imentoru_dashboard",
+  "type": "project",
+  "autoload": {
+    "psr-4": {
+      "Moila\\ImentoruDashboard\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "gumani-38",
+      "email": "surprisegumani@gmail.com"
+    }
+  ],
+  "description": "A dashboard for Imentoru project management.",
+  "license": "proprietary",
+  "require": {}
+}
